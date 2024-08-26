@@ -1,0 +1,6 @@
+CREATE TABLE performances (
+  id SERIAL PRIMARY KEY,
+  player_id INT,
+  team_id INT,
+  game_id INT
+);

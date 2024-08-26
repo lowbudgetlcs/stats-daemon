@@ -1,0 +1,1 @@
+ALTER TABLE series ADD CONSTRAINT c_team_ids CHECK (team1_id > team2_id);

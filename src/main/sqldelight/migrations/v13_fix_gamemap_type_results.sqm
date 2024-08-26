@@ -1,0 +1,2 @@
+ALTER TABLE results
+ALTER COLUMN game_map TYPE int;

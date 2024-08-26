@@ -1,0 +1,64 @@
+ALTER TABLE games
+ADD CONSTRAINT fk_winner
+FOREIGN KEY(winner_id)
+REFERENCES teams(id);
+
+ALTER TABLE games
+ADD CONSTRAINT fk_loser
+FOREIGN KEY(loser_id)
+REFERENCES teams(id);
+
+ALTER TABLE games
+ADD CONSTRAINT fk_series
+FOREIGN KEY(series_id)
+REFERENCES series(id);
+
+ALTER TABLE games
+ADD CONSTRAINT fk_result
+FOREIGN KEY(result_id)
+REFERENCES results(id);
+
+ALTER TABLE series
+ADD CONSTRAINT fk_team1
+FOREIGN KEY(team1_id)
+REFERENCES teams(id);
+
+ALTER TABLE series
+ADD CONSTRAINT fk_team2
+FOREIGN KEY(team2_id)
+REFERENCES teams(id);
+
+ALTER TABLE teams
+ADD CONSTRAINT fk_division
+FOREIGN KEY(division_id)
+REFERENCES divisions(id);
+
+ALTER TABLE teams
+ADD CONSTRAINT fk_captain
+FOREIGN KEY(captain_id)
+REFERENCES players(id);
+
+ALTER TABLE players
+ADD CONSTRAINT fk_team
+FOREIGN KEY(team_id)
+REFERENCES teams(id);
+
+ALTER TABLE accounts
+ADD CONSTRAINT fk_player
+FOREIGN KEY(player_id)
+REFERENCES players(id);
+
+ALTER TABLE standings
+ADD CONSTRAINT fk_team
+FOREIGN KEY(team_id)
+REFERENCES teams(id);
+
+ALTER TABLE schedules
+ADD CONSTRAINT fk_division
+FOREIGN KEY(division_id)
+REFERENCES divisions(id);
+
+ALTER TABLE schedules
+ADD CONSTRAINT fk_series
+FOREIGN KEY(series_id)
+REFERENCES series(id);

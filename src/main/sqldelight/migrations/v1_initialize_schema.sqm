@@ -1,0 +1,79 @@
+CREATE TABLE games (
+  id SERIAL PRIMARY KEY,
+  short_code CHAR(44) NOT NULL,
+  winner_id INT,
+  loser_id INT,
+  series_id INT NOT NULL,
+  result_id INT
+);
+
+CREATE TABLE results (
+  id SERIAL PRIMARY KEY,
+  start_time BIGINT,
+  short_code CHAR(44) NOT NULL,
+  meta_data TEXT NOT NULL,
+  game_id BIGINT,
+  game_name VARCHAR(60),
+  game_type VARCHAR(20),
+  game_map VARCHAR(20),
+  game_mode VARCHAR(20),
+  region VARCHAR(20)
+);
+
+CREATE TABLE series (
+  id SERIAL PRIMARY KEY,
+  team1_id INT NOT NULL,
+  team2_id INT NOT NULL,
+  message_id BIGINT,
+  playoffs BOOLEAN NOT NULL,
+  win_condition INT NOT NULL
+);
+
+CREATE TABLE divisions (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(20) NOT NULL,
+  description TEXT,
+  provider_id INT NOT NULL,
+  tournament_id INT NOT NULL ,
+  groups INT,
+  UNIQUE(tournament_id)
+);
+
+CREATE TABLE teams (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  division_id INT NOT NULL,
+  group_id CHAR NOT NULL,
+  captain_id INT,
+  logo VARCHAR
+);
+
+CREATE TABLE players (
+  id SERIAL PRIMARY KEY,
+  primary_riot_puuid CHAR(78) NOT NULL,
+  team_id INT,
+  UNIQUE(primary_riot_puuid)
+);
+
+CREATE TABLE accounts (
+  id SERIAL PRIMARY KEY,
+  riot_puuid CHAR(78) NOT NULL,
+  player_id INT NOT NULL,
+  is_primary BOOLEAN NOT NULL
+);
+
+CREATE TABLE standings (
+  id SERIAL PRIMARY KEY,
+  placement INT NOT NULL,
+  division_id INT NOT NULL,
+  group_id CHAR NOT NULL,
+  team_id INT NOT NULL
+);
+
+CREATE TABLE schedules (
+  id SERIAL PRIMARY KEY,
+  week INT NOT NULL,
+  division_id INT NOT NULL,
+  group_id CHAR NOT NULL,
+  series_id INT NOT NULL
+);

@@ -1,0 +1,8 @@
+selectAll:
+  SELECT *
+  FROM series;
+
+selectSeriesById:
+  SELECT *
+  FROM series
+  WHERE id = ?;

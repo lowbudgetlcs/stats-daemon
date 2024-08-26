@@ -1,0 +1,4 @@
+selectAll:
+  SELECT *
+  FROM games;
+

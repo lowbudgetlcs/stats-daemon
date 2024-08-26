@@ -1,0 +1,9 @@
+
+selectAll:
+  SELECT *
+  FROM results;
+
+insertResult:
+  INSERT INTO results
+  VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  RETURNING id;

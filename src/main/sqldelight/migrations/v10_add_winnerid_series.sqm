@@ -1,0 +1,9 @@
+ALTER TABLE series
+ADD winner_id int;
+
+ALTER TABLE series
+ADD CONSTRAINT fk_winner
+FOREIGN KEY(winner_id)
+REFERENCES teams(id)
+ON UPDATE CASCADE
+ON DELETE SET NULL;
