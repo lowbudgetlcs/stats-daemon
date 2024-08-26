@@ -35,13 +35,17 @@ sqldelight {
 }
 
 dependencies {
+    // MessageQ Library
     implementation("com.rabbitmq:amqp-client:5.21.0")
 
+    // Riot API Library
     implementation("com.github.stelar7:R4J:master-SNAPSHOT")
 
+    // SQLDelight (database stuff)
     implementation("app.cash.sqldelight:jdbc-driver:2.0.2")
     implementation("com.zaxxer:HikariCP:5.1.0")
     implementation("org.postgresql:postgresql:42.7.2")
+
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0-RC")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.2")
