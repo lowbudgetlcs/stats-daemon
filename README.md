@@ -30,6 +30,14 @@ and that's what matters. Make sure you put the Riot Token in .env. I am not supe
 with this yet, and the documentation sucks. I've been relying on Intellij intellisense for 
 riot stuff.
 
+### Running/Testing
+
+Since this relies on a messageq, testing locally is sorta annoying. It might be a good idea to 
+just assume that reading off the queue works (I'll handle it), and just test by directly invoking 
+whatever functions you write. I'll connect everything together once it's ready. I've included docker 
+instructions below in case you want to try it, but it isn't necessary. I also linked docs for all the
+libraries I recommend. Take it slow! Gl king.
+
 ### Docker
 
 There are two ways to run this app's container.
