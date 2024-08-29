@@ -43,6 +43,7 @@ object RabbitMQBridge {
                     val result = Json.decodeFromString<Result>(message)
                     logger.debug("Callback: {}", result.toString())
                     // Actually do something with the callback
+                    StatsHandler(result).receiveCallback()
                 }
                 basicConsume(queue, true, callback) { _ -> }
             }
