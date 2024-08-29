@@ -3,6 +3,6 @@ SELECT *
 FROM teams;
 
 findDivisionId:
-SELECT division_id
-FROM teams
-WHERE id = ?;
+    SELECT division_id
+    FROM teams
+    WHERE id = ?;
