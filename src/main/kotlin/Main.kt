@@ -1,8 +1,10 @@
 package com.lowbudgetlcs
 
+import com.lowbudgetlcs.RiotAPIBridge.logger
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlin.system.exitProcess
 
 @OptIn(ExperimentalSerializationApi::class)
 fun main(): Unit = runBlocking {
@@ -22,6 +24,10 @@ fun main(): Unit = runBlocking {
 //    val result = Json.decodeFromString<Result>(test)
 
 //    StatsHandler(result).receiveCallback() // Explicitly call function for testing- assume RabbitMQ works
+    when(RiotAPIBridge.healthCheck()) {
+        0 -> logger.info("Riot status healthy!")
+        else -> exitProcess(1)
+    }
     launch {
         val bridge = RabbitMQBridge()
         bridge.listen(arrayOf("callback"))

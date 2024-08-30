@@ -92,7 +92,7 @@ class StatsHandler(private val result: Result) {
                 level = player.championLevel,
                 gold = player.goldEarned.toLong(),
                 vision_score = player.visionScore.toLong(),
-                damage = player.totalDamageDealt.toLong(),
+                damage = player.totalDamageDealtToChampions.toLong(),
                 healing = player.totalHeal.toLong(),
                 shielding = player.totalDamageShieldedOnTeammates.toLong(),
                 damage_taken = player.totalDamageTaken.toLong(),
