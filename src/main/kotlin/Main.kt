@@ -23,9 +23,11 @@ fun main(): Unit = runBlocking {
 
 //    StatsHandler(result).receiveCallback() // Explicitly call function for testing- assume RabbitMQ works
     launch {
-        RabbitMQBridge().listen(arrayOf("callback"))
+        val bridge = RabbitMQBridge()
+        bridge.listen(arrayOf("callback"))
     }
 //    launch {
-//        RabbitMQBridge().listen(arrayOf("series"))
+//      val bridge = RabbitMQBridge()
+//      bridge.listen(arrayOf("series"))
 //    }
 }
