@@ -19,7 +19,7 @@ fun main(): Unit = runBlocking {
 //        "gameMode": "CLASSIC",
 //        "region": "NA1"
 //    }""".trimIndent()
-//    val result: Result= Json.decodeFromString(test)
+//    val result = Json.decodeFromString<Result>(test)
 
 //    StatsHandler(result).receiveCallback() // Explicitly call function for testing- assume RabbitMQ works
     launch {

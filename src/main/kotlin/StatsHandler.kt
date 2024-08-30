@@ -61,9 +61,11 @@ class StatsHandler(private val result: Result) {
         getPlayerId(player)?.let { p ->
             p.team_id?.let { teamId ->
                 teamQueries.findDivisionId(teamId).executeAsOneOrNull()?.let { divisionId ->
-                    val playerDataId = savePlayerData(player, match.gameDuration, teamKills)
-                    divisionId.division_id?.let { divisionID ->
-                        savePerformance(p.id, teamId, divisionID, playerDataId, gameId)
+                    when (val perfId = savePerformance(p.id, teamId, divisionId, gameId)) {
+                        -1 -> {}
+                        else -> {
+                            savePlayerData(perfId, player, match.gameDuration, teamKills)
+                        }
                     }
                 }
             }
@@ -80,48 +82,54 @@ class StatsHandler(private val result: Result) {
         return null
     }
 
-    private fun savePlayerData(player: MatchParticipant, gameLength: Int, teamkills: Int): Int {
+    private fun savePlayerData(performanceId: Int, player: MatchParticipant, gameLength: Int, teamkills: Int): Int {
         val playerDataqueriesQueries = db.player_DataQueries
-        playerDataqueriesQueries.insertData(
-            kills = player.kills,
-            deaths = player.deaths,
-            assists = player.assists,
-            level = player.championLevel,
-            gold = player.goldEarned.toLong(),
-            vision_score = player.visionScore.toLong(),
-            damage = player.totalDamageDealt.toLong(),
-            healing = player.totalHeal.toLong(),
-            shielding = player.totalDamageShieldedOnTeammates.toLong(),
-            damage_taken = player.totalDamageTaken.toLong(),
-            self_mitigated_damage = player.damageSelfMitigated.toLong(),
-            damage_to_turrets = player.damageDealtToTurrets.toLong(),
-            longest_life = player.longestTimeSpentLiving.toLong(),
-            double_kills = player.doubleKills.toShort(),
-            triple_kills = player.tripleKills.toShort(),
-            quadra_kills = player.quadraKills.toShort(),
-            penta_kills = player.pentaKills.toShort(),
-            game_length = gameLength.toLong(),
-            win = player.didWin(),
-            cs = player.totalMinionsKilled,
-            champion_name = player.championName,
-            team_kills = teamkills
-        ).executeAsOneOrNull()?.let {
-            return it
+        try {
+            playerDataqueriesQueries.insertData(
+                kills = player.kills,
+                deaths = player.deaths,
+                assists = player.assists,
+                level = player.championLevel,
+                gold = player.goldEarned.toLong(),
+                vision_score = player.visionScore.toLong(),
+                damage = player.totalDamageDealt.toLong(),
+                healing = player.totalHeal.toLong(),
+                shielding = player.totalDamageShieldedOnTeammates.toLong(),
+                damage_taken = player.totalDamageTaken.toLong(),
+                self_mitigated_damage = player.damageSelfMitigated.toLong(),
+                damage_to_turrets = player.damageDealtToTurrets.toLong(),
+                longest_life = player.longestTimeSpentLiving.toLong(),
+                double_kills = player.doubleKills.toShort(),
+                triple_kills = player.tripleKills.toShort(),
+                quadra_kills = player.quadraKills.toShort(),
+                penta_kills = player.pentaKills.toShort(),
+                game_length = gameLength.toLong(),
+                win = player.didWin(),
+                cs = player.totalMinionsKilled,
+                champion_name = player.championName,
+                team_kills = teamkills,
+                short_code = result.shortCode,
+                performance_id = performanceId
+            ).executeAsOneOrNull()?.let {
+                return it
+            }
+        } catch (e: Throwable) {
+            logger.error(e.message)
         }
         logger.warn("Inserting player data failed for code {} player {}", result.shortCode, player.riotIdName)
         return -1
     }
 
-    private fun savePerformance(playerId: Int, teamId: Int, divisionId: Int, playerDataId: Int, gameId: Int): Int {
+    private fun savePerformance(playerId: Int, teamId: Int, divisionId: Int, gameId: Int): Int {
         val performancesQueries = db.performancesQueries
-        performancesQueries.insertPerformance(
-            player_id = playerId,
-            team_id = teamId,
-            division_id = divisionId,
-            player_data_id = playerDataId,
-            game_id = gameId
-        ).executeAsOneOrNull()?.let {
-            return it
+        try {
+            performancesQueries.insertPerformance(
+                player_id = playerId, team_id = teamId, division_id = divisionId, game_id = gameId
+            ).executeAsOneOrNull()?.let {
+                return it
+            }
+        } catch (e: Throwable) {
+            logger.error(e.message)
         }
         logger.warn("Error inserting performance for player #'{}'.", playerId)
         return -1

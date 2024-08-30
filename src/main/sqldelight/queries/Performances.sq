@@ -1,4 +1,4 @@
 insertPerformance:
   INSERT INTO performances
-  VALUES (DEFAULT, ?, ?, ?, ?, ?)
+  VALUES (DEFAULT, ?, ?, ?, ?)
   RETURNING id;
