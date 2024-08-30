@@ -12,7 +12,7 @@ CREATE TABLE results (
   start_time BIGINT,
   short_code CHAR(44) NOT NULL,
   meta_data TEXT NOT NULL,
-  game_id BIGINT,
+  game_id INT,
   game_name VARCHAR(60),
   game_type VARCHAR(20),
   game_map VARCHAR(20),
@@ -22,8 +22,8 @@ CREATE TABLE results (
 
 CREATE TABLE series (
   id SERIAL PRIMARY KEY,
-  team1_id INT NOT NULL,
-  team2_id INT NOT NULL,
+  team1_id INT,
+  team2_id INT,
   message_id BIGINT,
   playoffs BOOLEAN NOT NULL,
   win_condition INT NOT NULL

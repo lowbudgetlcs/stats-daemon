@@ -1,0 +1,5 @@
+ALTER TABLE results
+ALTER COLUMN game_map TYPE int USING game_map::integer;
+
+ALTER TABLE results
+ALTER COLUMN game_id TYPE bigint;

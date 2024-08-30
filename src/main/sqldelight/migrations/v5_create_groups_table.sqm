@@ -1,9 +1,0 @@
-CREATE TABLE group_keys (
-  id int PRIMARY KEY,
-  letter CHAR(1)
-);
-
-INSERT INTO group_keys VALUES (1, 'A');
-INSERT INTO group_keys VALUES (2, 'B');
-INSERT INTO group_keys VALUES (3, 'C');
-INSERT INTO group_keys VALUES (4, 'D');
