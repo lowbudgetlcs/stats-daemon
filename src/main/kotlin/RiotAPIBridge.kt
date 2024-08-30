@@ -18,11 +18,16 @@ object RiotAPIBridge {
         R4J(creds)
     }
 
-    fun healthCheck() {
+    fun healthCheck(): Int {
         logger.info("Starting healthcheck!")
-        val ruuffian = client.accountAPI.getAccountByTag(RegionShard.AMERICAS, "ruuffian", "FUNZ")
-        val summoner = client.loLAPI.summonerAPI.getSummonerByPUUID(LeagueShard.NA1, ruuffian.puuid)
-        logger.info("Welcome, ${ruuffian.name}. Congrats on hitting level ${summoner.summonerLevel}!")
+        try {
+            val ruuffian = client.accountAPI.getAccountByTag(RegionShard.AMERICAS, "ruuffian", "FUNZ")
+            val summoner = client.loLAPI.summonerAPI.getSummonerByPUUID(LeagueShard.NA1, ruuffian.puuid)
+            logger.info("Welcome, ${ruuffian.name}. Congrats on hitting level ${summoner.summonerLevel}!")
+        } catch(e: Throwable){
+            return 1
+        }
+        return 0
     }
 
     fun getMatchData(matchId: Long): LOLMatch {
