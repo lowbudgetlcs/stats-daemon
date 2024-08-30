@@ -105,7 +105,7 @@ class StatsHandler(private val result: Result) {
                 penta_kills = player.pentaKills.toShort(),
                 game_length = gameLength.toLong(),
                 win = player.didWin(),
-                cs = player.totalMinionsKilled,
+                cs = player.totalMinionsKilled + player.neutralMinionsKilled,
                 champion_name = player.championName,
                 team_kills = teamkills,
                 short_code = result.shortCode,
