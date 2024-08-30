@@ -6,3 +6,8 @@ selectTeamId:
   SELECT team_id
   FROM players
   WHERE primary_riot_puuid = ?;
+
+selectByPuuid:
+  SELECT *
+  FROM players
+  WHERE primary_riot_puuid = ?;

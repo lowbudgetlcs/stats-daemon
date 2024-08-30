@@ -2,5 +2,33 @@ CREATE TABLE performances (
   id SERIAL PRIMARY KEY,
   player_id INT,
   team_id INT,
+  division_id INT,
+  player_data_id INT,
   game_id INT
+);
+
+CREATE TABLE player_data (
+  id SERIAL PRIMARY KEY,
+  kills INT NOT NULL DEFAULT 0,
+  deaths INT NOT NULL DEFAULT 0,
+  assists INT NOT NULL DEFAULT 0,
+  level INT NOT NULL DEFAULT 0,
+  gold BIGINT NOT NULL DEFAULT 0,
+  vision_score BIGINT NOT NULL DEFAULT 0,
+  damage BIGINT NOT NULL DEFAULT 0,
+  healing BIGINT NOT NULL DEFAULT 0,
+  shielding BIGINT NOT NULL DEFAULT 0,
+  damage_taken BIGINT NOT NULL DEFAULT 0,
+  self_mitigated_damage BIGINT NOT NULL DEFAULT 0,
+  damage_to_turrets BIGINT NOT NULL DEFAULT 0,
+  longest_life BIGINT NOT NULL DEFAULT 0,
+  double_kills SMALLINT NOT NULL DEFAULT 0,
+  triple_kills SMALLINT NOT NULL DEFAULT 0,
+  quadra_kills SMALLINT NOT NULL DEFAULT 0,
+  penta_kills SMALLINT NOT NULL DEFAULT 0,
+  game_length BIGINT NOT NULL DEFAULT 0,
+  win boolean,
+  cs INT DEFAULT 0,
+  champion_name TEXT,
+  team_kills INT DEFAULT 0
 );
