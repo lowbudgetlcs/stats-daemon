@@ -1,0 +1,13 @@
+services:
+  stats_daemon:
+    build: .
+    container_name: stats_daemon
+    env_file:
+      - .env
+    networks:
+      - rabbitmq.docker
+
+networks:
+  rabbitmq.docker:
+    name: rabbitmq.docker
+    external: true
