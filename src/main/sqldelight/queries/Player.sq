@@ -7,7 +7,7 @@ selectTeamId:
   FROM players
   WHERE primary_riot_puuid = ?;
 
-selectPlayerId:
-  SELECT id
+selectByPuuid:
+  SELECT *
   FROM players
   WHERE primary_riot_puuid = ?;

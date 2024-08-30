@@ -1,14 +1,15 @@
 package com.lowbudgetlcs
 
+import com.lowbudgetlcs.data.Result
 import com.rabbitmq.client.*
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import org.slf4j.LoggerFactory
-import com.lowbudgetlcs.data.*
-import kotlinx.coroutines.*
 
-class RabbitMQBridge(private val exchangeName: String = "RIOT_CALLBACKS"){
+class RabbitMQBridge(private val exchangeName: String = "RIOT_CALLBACKS") {
     private val logger = LoggerFactory.getLogger("com.lowbudgetlcs.RabbitMQBridge")
     private val factory = ConnectionFactory().apply {
         host = System.getenv("MESSAGEQ_HOST") ?: "rabbitmq"

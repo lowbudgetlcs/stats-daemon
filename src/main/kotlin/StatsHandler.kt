@@ -1,4 +1,5 @@
 package com.lowbudgetlcs
+
 import com.lowbudgetlcs.data.MetaData
 import com.lowbudgetlcs.data.Result
 import kotlinx.coroutines.launch
@@ -6,117 +7,82 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
+import migrations.Players
 import no.stelar7.api.r4j.pojo.lol.match.v5.LOLMatch
 import no.stelar7.api.r4j.pojo.lol.match.v5.MatchParticipant
 import org.slf4j.LoggerFactory
-import queries.FindDivisionId
 
-
-class StatsHandler(private val result: Result){
+class StatsHandler(private val result: Result) {
     private val logger = LoggerFactory.getLogger("com.lowbudgetlcs.StatsHandler")
     private val db = Db.db
+
     @OptIn(ExperimentalSerializationApi::class)
     private val metaData: MetaData = Json.decodeFromString<MetaData>(result.metaData)
     private val seriesId = metaData.seriesId
     private val code = result.shortCode
 
     fun receiveCallback() = runBlocking {
-
-        launch {
-            val match: LOLMatch = RiotAPIBridge.getMatchData(result.gameId)
-            saveStatus(match)
-            //val something: something = writeToSheets()
-        }
+        val match: LOLMatch = RiotAPIBridge.getMatchData(result.gameId)
+        saveStats(match)
+        //val something: something = writeToSheets()
     }
 
-
-
-    private fun saveStatus(match: LOLMatch) {
+    private fun saveStats(match: LOLMatch) = runBlocking {
         logger.info("Updating player stats")
-        val gameQueries = Db.db.gameQueries
-        val id = gameQueries.selectIdByCode(code).executeAsOneOrNull()
-        when (id) {
+        val gameQueries = db.gameQueries
+        when (val id = gameQueries.selectIdByCode(code).executeAsOneOrNull()) {
             null -> {
                 logger.warn("No game found for series '{}' game code '{}'", seriesId, code)
-                return
             }
+
             else -> {
                 logger.debug("Inserting game id '{}' performances...", id)
-                val winningPlayers = match.participants.filter { participant -> participant.didWin() }
-                val losingPlayers = match.participants.filter { participant -> !participant.didWin() }
-                val (winnerId: Int, loserId: Int) = Pair(
-                    getTeamId(winningPlayers),
-                    getTeamId(losingPlayers),
-                )
-                var teamKills: Int
-                for (player in winningPlayers)
-                {
-                    val teamQueries = Db.db.teamQueries
-                    val divisionId = teamQueries.findDivisionId(winnerId).executeAsOneOrNull()?.division_id
-                    if(match.teams.get(0).didWin())
-                        teamKills = match.teams.get(0).objectives.get("champion")?.kills ?: 0
-                    else
-                        teamKills = match.teams.get(1).objectives.get("champion")?.kills ?: 0
-
-                    val playerDataId = savePlayerData(player, match.gameDuration, teamKills)
-                    val playerId = getPlayerId(player)
-                    if(divisionId==null || playerId == -1) {
-                        logger.warn("Team or Player not valid")
-                        return
+                for (player in match.participants) {
+                    launch {
+                        processPlayer(id, match, player)
                     }
-                    savePerformances(playerId, winnerId, divisionId, playerDataId)
-
+                    logger.debug("Finished inserting performances for series id '{}' game id '{}'!", seriesId, id)
                 }
-                for (player in losingPlayers)
-                {
-                    val teamQueries = Db.db.teamQueries
-                    val divisionId = teamQueries.findDivisionId(loserId).executeAsOneOrNull()?.division_id
-                    if(!match.teams.get(0).didWin())
-                        teamKills = match.teams.get(0).objectives.get("champion")?.kills ?: 0
-                    else
-                        teamKills = match.teams.get(1).objectives.get("champion")?.kills ?: 0
-
-                    val playerDataId = savePlayerData(player, match.gameDuration, teamKills)
-                    val playerId = getPlayerId(player)
-                    if(divisionId==null || playerId == -1) {
-                        logger.warn("Team or Player not valid")
-                        return
-                    }
-                    savePerformances(playerId, winnerId, divisionId, playerDataId)
-                }
-                logger.debug("Succsesfully inserted performances for series id '{}' game id '{}'!", seriesId, id)
             }
         }
     }
 
-    private fun getTeamId(players: List<MatchParticipant>): Int {
-        val playerQueries = db.playerQueries
-        for (player in players) {
-            val teamId = playerQueries.selectTeamId(player.puuid).executeAsOneOrNull()
-            teamId?.let {
-                it.team_id?.let { team_id ->
-                    logger.debug("Fetched team id: {}", team_id)
-                    return team_id
+    private fun processPlayer(gameId: Int, match: LOLMatch, player: MatchParticipant) {
+        logger.debug("Processing code '{}'::'{}'", result.shortCode, player.riotIdName)
+        val teamKills: Int = when (player.didWin()) {
+            match.teams[0].didWin() -> match.teams[0].objectives["champion"]?.kills ?: 0
+            match.teams[1].didWin() -> match.teams[1].objectives["champion"]?.kills ?: 0
+            else -> {
+                logger.warn("Code: '{}' - Both teams won or lost???", result.shortCode)
+                0
+            }
+        }
+        val teamQueries = db.teamQueries
+        getPlayerId(player)?.let { p ->
+            p.team_id?.let { teamId ->
+                teamQueries.findDivisionId(teamId).executeAsOneOrNull()?.let { divisionId ->
+                    val playerDataId = savePlayerData(player, match.gameDuration, teamKills)
+                    divisionId.division_id?.let { divisionID ->
+                        savePerformance(p.id, teamId, divisionID, playerDataId, gameId)
+                    }
                 }
             }
         }
-        logger.warn("No valid player's provided.")
-        return -1
+        logger.debug("Finished processing '{}'::'{}'", result.shortCode, player.riotIdName)
     }
 
-    private fun getPlayerId(player: MatchParticipant): Int {
+    private fun getPlayerId(player: MatchParticipant): Players? {
         val playerQueries = db.playerQueries
-        val playerId = playerQueries.selectPlayerId(player.puuid).executeAsOneOrNull()
-        if(playerId==null) {
-            logger.warn("Not a valid player")
-            return -1
+        playerQueries.selectByPuuid(player.puuid).executeAsOneOrNull()?.let {
+            return it
         }
-        return playerId
+        logger.warn("Player {} not in database.", player.riotIdName)
+        return null
     }
 
     private fun savePlayerData(player: MatchParticipant, gameLength: Int, teamkills: Int): Int {
         val playerDataqueriesQueries = db.player_DataQueries
-        val id = playerDataqueriesQueries.insertData(
+        playerDataqueriesQueries.insertData(
             kills = player.kills,
             deaths = player.deaths,
             assists = player.assists,
@@ -139,19 +105,25 @@ class StatsHandler(private val result: Result){
             cs = player.totalMinionsKilled,
             champion_name = player.championName,
             team_kills = teamkills
-        ).executeAsOne()
-        return id;
+        ).executeAsOneOrNull()?.let {
+            return it
+        }
+        logger.warn("Inserting player data failed for code {} player {}", result.shortCode, player.riotIdName)
+        return -1
     }
 
-    private fun savePerformances(playerId: Int, teamId: Int, division_id: Int, player_data_id: Int) : Int {
+    private fun savePerformance(playerId: Int, teamId: Int, divisionId: Int, playerDataId: Int, gameId: Int): Int {
         val performancesQueries = db.performancesQueries
-        val id = performancesQueries.insertPerformance(
+        performancesQueries.insertPerformance(
             player_id = playerId,
             team_id = teamId,
-            division_id = division_id,
-            player_data_id = player_data_id,
-            game_id = result.gameId.toInt()
-        ).executeAsOne()
-        return id
+            division_id = divisionId,
+            player_data_id = playerDataId,
+            game_id = gameId
+        ).executeAsOneOrNull()?.let {
+            return it
+        }
+        logger.warn("Error inserting performance for player #'{}'.", playerId)
+        return -1
     }
 }
