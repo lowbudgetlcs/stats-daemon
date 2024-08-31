@@ -39,7 +39,9 @@ class StatsHandler(private val result: Result) {
                 logger.debug("Inserting game id '{}' performances...", id)
                 for (player in match.participants) {
                     launch {
-                        processPlayer(id, match, player)
+                        db.transaction {
+                            processPlayer(id, match, player)
+                        }
                     }
                     logger.debug("Finished inserting performances for series id '{}' game id '{}'!", seriesId, id)
                 }
@@ -78,7 +80,7 @@ class StatsHandler(private val result: Result) {
         playerQueries.selectByPuuid(player.puuid).executeAsOneOrNull()?.let {
             return it
         }
-        logger.warn("Player {} not in database.", player.riotIdName)
+        logger.warn("Player {} not in database. ({})", player.riotIdName, result.shortCode)
         return null
     }
 
