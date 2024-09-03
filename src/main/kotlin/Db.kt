@@ -5,14 +5,16 @@ import app.cash.sqldelight.driver.jdbc.asJdbcDriver
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 
-object Db {
-    private val driver: SqlDriver by lazy {
-        HikariConfig().apply {
-            jdbcUrl = System.getenv("POSTGRES_URL")
-            username = System.getenv("POSTGRES_USER")
-            password = System.getenv("POSTGRES_PW")
-        }.let { cfg ->
-            HikariDataSource(cfg).asJdbcDriver()
+class Db {
+    companion object {
+        private val driver: SqlDriver by lazy {
+            HikariConfig().apply {
+                jdbcUrl = System.getenv("POSTGRES_URL")
+                username = System.getenv("POSTGRES_USER")
+                password = System.getenv("POSTGRES_PW")
+            }.let { cfg ->
+                HikariDataSource(cfg).asJdbcDriver()
+            }
         }
     }
 

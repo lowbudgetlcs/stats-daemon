@@ -8,8 +8,10 @@ import no.stelar7.api.r4j.pojo.lol.match.v5.LOLMatch
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-object RiotAPIBridge {
-    val logger: Logger = LoggerFactory.getLogger("com.lowbudgetlcs.RiotAPIBridge")
+class RiotAPIBridge {
+    companion object {
+        val logger: Logger = LoggerFactory.getLogger("com.lowbudgetlcs.RiotAPIBridge")
+    }
 
     private val client by lazy {
         val creds = APICredentials(System.getenv("RIOT_API_TOKEN"))
@@ -23,7 +25,7 @@ object RiotAPIBridge {
             val ruuffian = client.accountAPI.getAccountByTag(RegionShard.AMERICAS, "ruuffian", "FUNZ")
             val summoner = client.loLAPI.summonerAPI.getSummonerByPUUID(LeagueShard.NA1, ruuffian.puuid)
             logger.info("Welcome, ${ruuffian.name}. Congrats on hitting level ${summoner.summonerLevel}!")
-        } catch(e: Throwable){
+        } catch (e: Throwable) {
             logger.error(e.message)
             return 1
         }

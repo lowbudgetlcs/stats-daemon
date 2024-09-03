@@ -2,6 +2,7 @@ package com.lowbudgetlcs
 
 import com.lowbudgetlcs.data.MetaData
 import com.lowbudgetlcs.data.Result
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -14,15 +15,16 @@ import org.slf4j.LoggerFactory
 
 class StatsHandler(private val result: Result) {
     private val logger = LoggerFactory.getLogger("com.lowbudgetlcs.StatsHandler")
-    private val db = Db.db
+    private val db = Db().db
 
     @OptIn(ExperimentalSerializationApi::class)
     private val metaData: MetaData = Json.decodeFromString<MetaData>(result.metaData)
     private val seriesId = metaData.seriesId
     private val code = result.shortCode
 
-    fun receiveCallback() = runBlocking {
-        val match: LOLMatch = RiotAPIBridge.getMatchData(result.gameId)
+    fun receiveCallback() {
+        logger.debug("[x] Processing callback")
+        val match: LOLMatch = RiotAPIBridge().getMatchData(result.gameId)
         saveStats(match)
         //val something: something = writeToSheets()
     }
@@ -44,7 +46,7 @@ class StatsHandler(private val result: Result) {
                                 processPlayer(id, match, player)
                             }
                         } catch (e: Throwable) {
-                            logger.error("Transaction failed for {}.", player.riotIdName + player.riotIdTagline)
+                            logger.error("Transaction failed for '{}' (series_id: '{}', game_id: '{}'.", player.riotIdName + player.riotIdTagline, seriesId, id)
                         }
                     }
                     logger.debug("Finished inserting performances for series id '{}' game id '{}'!", seriesId, id)
