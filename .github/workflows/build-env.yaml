@@ -14,7 +14,7 @@ jobs:
           touch ./.env
           VER=$(cat VERSION)
           echo "VERSION=$VER" >> ./.env.art
-          echo "APP=stats_daemon" >> ./.env.art
+          echo "APP=stats-daemon" >> ./.env.art
 
       - name: Upload env artifact
         uses: actions/upload-artifact@v4
